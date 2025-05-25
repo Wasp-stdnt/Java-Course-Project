@@ -8,3 +8,5 @@ spring:
 
   jpa:
     hibernate.ddl-auto: update
+
+app.encryption.key: v9QZniZKg4TFCY8MpEBr3g==
