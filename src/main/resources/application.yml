@@ -1,0 +1,10 @@
+spring:
+  application.name: password-manager-v2
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/pm-db
+    username: pm-psql-db-user
+    password: supa-secure
+
+  jpa:
+    hibernate.ddl-auto: update

@@ -1,0 +1,12 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: password-manager-psql-container-v2
+    environment:
+      POSTGRES_USER: pm-psql-db-user
+      POSTGRES_PASSWORD: supa-secure
+      POSTGRES_DB: pm-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pm-psql-data-v2:/var/lib/postgresql/data
