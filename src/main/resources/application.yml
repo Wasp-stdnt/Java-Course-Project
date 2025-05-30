@@ -9,4 +9,8 @@ spring:
   jpa:
     hibernate.ddl-auto: update
 
-app.encryption.key: v9QZniZKg4TFCY8MpEBr3g==
+app:
+  encryption.key: zlOUCikArtsQvFCE/8lsDw4tY88ozFGJoczfNGZxd7k=
+  jwt:
+    secret: 5w4hskzzzwQGuxHgcfHMSxs5kDXjhPtpBOu+z+aZdHugoBO6fjBHRbNjQ+elw+6RZihrIGgKMYd4qb3SoAp2JA==
+    expiration-ms: 3600000
