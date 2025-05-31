@@ -2,6 +2,7 @@ package io.github.wasp_stdnt.passwordmanagerv2.controller;
 
 import io.github.wasp_stdnt.passwordmanagerv2.dto.PasswordResponseDto;
 import io.github.wasp_stdnt.passwordmanagerv2.dto.PasswordWriteDto;
+import io.github.wasp_stdnt.passwordmanagerv2.security.CurrentUser;
 import io.github.wasp_stdnt.passwordmanagerv2.service.PasswordService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -23,22 +24,19 @@ public class PasswordController {
     }
 
     @PostMapping
-    public ResponseEntity<PasswordResponseDto> createPassword(@Valid @RequestBody PasswordWriteDto createDto) {
-        Long userId = getCurrentUserId();
+    public ResponseEntity<PasswordResponseDto> createPassword(@Valid @RequestBody PasswordWriteDto createDto, @CurrentUser Long userId) {
         PasswordResponseDto responseDto = passwordService.createPassword(userId, createDto);
         return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping
-    public ResponseEntity<List<PasswordResponseDto>> listPasswords() {
-        Long userId = getCurrentUserId();
+    public ResponseEntity<List<PasswordResponseDto>> listPasswords(@CurrentUser Long userId) {
         List<PasswordResponseDto> passwords = passwordService.listPasswords(userId);
         return ResponseEntity.ok(passwords);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PasswordResponseDto> getPassword(@PathVariable Long id) {
-        Long userId = getCurrentUserId();
+    public ResponseEntity<PasswordResponseDto> getPassword(@PathVariable Long id, @CurrentUser Long userId) {
         PasswordResponseDto responseDto = passwordService.getPassword(userId, id);
         return ResponseEntity.ok(responseDto);
     }
@@ -46,23 +44,15 @@ public class PasswordController {
     @PutMapping("/{id}")
     public ResponseEntity<PasswordResponseDto> updatePassword(
             @PathVariable Long id,
-            @Valid @RequestBody PasswordWriteDto updateDto) {
-        Long userId = getCurrentUserId();
+            @Valid @RequestBody PasswordWriteDto updateDto,
+            @CurrentUser Long userId) {
         PasswordResponseDto responseDto = passwordService.updatePassword(userId, id, updateDto);
         return ResponseEntity.ok(responseDto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePassword(@PathVariable Long id) {
-        Long userId = getCurrentUserId();
+    public ResponseEntity<Void> deletePassword(@PathVariable Long id, @CurrentUser Long userId) {
         passwordService.deletePassword(userId, id);
         return ResponseEntity.noContent().build();
-    }
-
-    private Long getCurrentUserId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return auth != null && auth.getPrincipal() instanceof Long
-                ? (Long) auth.getPrincipal()
-                : null;
     }
 }

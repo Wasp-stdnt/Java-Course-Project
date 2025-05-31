@@ -10,7 +10,7 @@ import io.github.wasp_stdnt.passwordmanagerv2.model.User;
 import io.github.wasp_stdnt.passwordmanagerv2.repository.UserRepository;
 import io.github.wasp_stdnt.passwordmanagerv2.service.UserService;
 import io.github.wasp_stdnt.passwordmanagerv2.service.encryption.PasswordHashService;
-import io.github.wasp_stdnt.passwordmanagerv2.service.security.JwtService;
+import io.github.wasp_stdnt.passwordmanagerv2.security.JwtService;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

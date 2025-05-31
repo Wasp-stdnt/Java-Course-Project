@@ -1,6 +1,7 @@
 package io.github.wasp_stdnt.passwordmanagerv2.service.security;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import io.github.wasp_stdnt.passwordmanagerv2.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

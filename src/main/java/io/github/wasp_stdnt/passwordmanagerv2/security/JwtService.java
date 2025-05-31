@@ -1,4 +1,4 @@
-package io.github.wasp_stdnt.passwordmanagerv2.service.security;
+package io.github.wasp_stdnt.passwordmanagerv2.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

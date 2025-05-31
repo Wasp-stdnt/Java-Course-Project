@@ -9,7 +9,7 @@ import io.github.wasp_stdnt.passwordmanagerv2.exception.NotFoundException;
 import io.github.wasp_stdnt.passwordmanagerv2.model.User;
 import io.github.wasp_stdnt.passwordmanagerv2.repository.UserRepository;
 import io.github.wasp_stdnt.passwordmanagerv2.service.encryption.PasswordHashService;
-import io.github.wasp_stdnt.passwordmanagerv2.service.security.JwtService;
+import io.github.wasp_stdnt.passwordmanagerv2.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
