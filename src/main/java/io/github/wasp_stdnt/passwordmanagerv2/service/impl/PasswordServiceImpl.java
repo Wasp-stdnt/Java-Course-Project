@@ -10,6 +10,8 @@ import io.github.wasp_stdnt.passwordmanagerv2.repository.PasswordRepository;
 import io.github.wasp_stdnt.passwordmanagerv2.repository.UserRepository;
 import io.github.wasp_stdnt.passwordmanagerv2.service.PasswordService;
 import io.github.wasp_stdnt.passwordmanagerv2.service.encryption.PasswordEncryptionService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,7 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "passwords", key = "#userId")
     public PasswordResponseDto createPassword(Long userId, PasswordWriteDto createDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -64,6 +67,8 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "passwords", key = "#userId")
     public List<PasswordResponseDto> listPasswords(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -86,6 +91,7 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PasswordResponseDto getPassword(Long userId, Long passwordId) {
         Password pw = passwordRepository.findByIdAndUser(passwordId,
                         userRepository.findById(userId)
@@ -107,6 +113,7 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "passwords", key = "#userId")
     public PasswordResponseDto updatePassword(Long userId, Long passwordId, PasswordWriteDto updateDto) {
         Password pw = passwordRepository.findByIdAndUser(passwordId,
                         userRepository.findById(userId)
@@ -139,6 +146,7 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "passwords", key = "#userId")
     public void deletePassword(Long userId, Long passwordId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));

@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/pm-db
+    username: pm-psql-db-user
+    password: supa-secure
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+  cache:
+    type: redis
+
+app:
+  encryption:
+    key: ${APP_ENCRYPTION_KEY}
+  jwt:
+    secret: ${APP_JWT_SECRET}
+    expiration-ms: ${APP_JWT_EXP_MS:3600000}

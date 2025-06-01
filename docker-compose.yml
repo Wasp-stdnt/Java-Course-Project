@@ -10,3 +10,55 @@ services:
       - "5432:5432"
     volumes:
       - pm-psql-data-v2:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: password-manager-redis-container
+    ports:
+      - "6379:6379"
+    volumes:
+      - pm-redis-data:/data
+
+  vault:
+    image: hashicorp/vault:1.18.2
+    container_name: password-manager-vault-container
+    environment:
+      VAULT_ADDR: "http://127.0.0.1:8200"
+      VAULT_DEV_ROOT_TOKEN_ID: "root-token"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    ports:
+      - "8200:8200"
+    volumes:
+      - pm-vault-file:/vault/file
+    command: "server -dev -dev-root-token-id=root-token"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.1
+    container_name: password-manager-keycloak-container
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: ["start-dev"]
+    ports:
+      - "8081:8080"
+    volumes:
+      - pm-keycloak-data:/opt/keycloak/data
+
+  app:
+    build: .
+    container_name: password-manager-app
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      APP_ENCRYPTION_KEY: zlOUCikArtsQvFCE/8lsDw4tY88ozFGJoczfNGZxd7k=
+      APP_JWT_SECRET: 5w4hskzzzwQGuxHgcfHMSxs5kDXjhPtpBOu+z+aZdHugoBO6fjBHRbNjQ+elw+6RZihrIGgKMYd4qb3SoAp2JA==
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8080:8080"
+
+volumes:
+  pm-psql-data-v2:
+  pm-redis-data:
+  pm-vault-file:
+  pm-keycloak-data:
