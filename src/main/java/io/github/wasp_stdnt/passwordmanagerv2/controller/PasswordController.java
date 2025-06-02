@@ -6,8 +6,6 @@ import io.github.wasp_stdnt.passwordmanagerv2.security.CurrentUser;
 import io.github.wasp_stdnt.passwordmanagerv2.service.PasswordService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 

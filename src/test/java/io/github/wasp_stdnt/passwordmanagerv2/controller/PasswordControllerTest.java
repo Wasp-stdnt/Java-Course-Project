@@ -1,32 +1,27 @@
 package io.github.wasp_stdnt.passwordmanagerv2.controller;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.wasp_stdnt.passwordmanagerv2.dto.PasswordResponseDto;
 import io.github.wasp_stdnt.passwordmanagerv2.dto.PasswordWriteDto;
-import io.github.wasp_stdnt.passwordmanagerv2.security.JwtService;
 import io.github.wasp_stdnt.passwordmanagerv2.service.PasswordService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(PasswordController.class)
@@ -39,25 +34,15 @@ class PasswordControllerTest {
     @MockitoBean
     private PasswordService passwordService;
 
-    @MockitoBean
-    private JwtService jwtService;
-
     @Autowired
     private ObjectMapper objectMapper;
 
-    private UsernamePasswordAuthenticationToken auth;
-    private DecodedJWT mockDecodedJwt;
-
-    @BeforeEach
-    void setUp() {
-        auth = new UsernamePasswordAuthenticationToken(1L, null, List.of());
-
-        when(jwtService.validateToken(anyString())).thenReturn(true);
-
-        mockDecodedJwt = Mockito.mock(DecodedJWT.class);
-        when(mockDecodedJwt.getSubject()).thenReturn("1");
-
-        when(jwtService.getDecodedToken(anyString())).thenReturn(mockDecodedJwt);
+    private Jwt makeJwtWithEmail(String email) {
+        return Jwt.withTokenValue("dummy-token")
+                .header("alg", "RS256")
+                .claim("preferred_username", email)
+                .claim("realm_access", Map.of("roles", List.of("user")))
+                .build();
     }
 
     @Test
@@ -75,11 +60,11 @@ class PasswordControllerTest {
                 .password("secret")
                 .build();
 
-        when(passwordService.createPassword(eq(1L), ArgumentMatchers.any(PasswordWriteDto.class)))
+        when(passwordService.createPassword(eq(1L), any(PasswordWriteDto.class)))
                 .thenReturn(responseDto);
 
         mockMvc.perform(post("/api/passwords")
-                        .with(authentication(auth))
+                        .with(jwt().jwt(makeJwtWithEmail("alice@example.com")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
                 .andExpect(status().isOk())
@@ -89,7 +74,7 @@ class PasswordControllerTest {
                 .andExpect(jsonPath("$.credential").value("alice@gmail.com"))
                 .andExpect(jsonPath("$.password").value("secret"));
 
-        verify(passwordService).createPassword(eq(1L), ArgumentMatchers.any(PasswordWriteDto.class));
+        verify(passwordService).createPassword(eq(1L), any(PasswordWriteDto.class));
     }
 
     @Test
@@ -104,7 +89,7 @@ class PasswordControllerTest {
         when(passwordService.listPasswords(1L)).thenReturn(List.of(dto1));
 
         mockMvc.perform(get("/api/passwords")
-                        .with(authentication(auth)))
+                        .with(jwt().jwt(makeJwtWithEmail("alice@example.com"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(2L))
@@ -127,7 +112,7 @@ class PasswordControllerTest {
         when(passwordService.getPassword(1L, 2L)).thenReturn(responseDto);
 
         mockMvc.perform(get("/api/passwords/2")
-                        .with(authentication(auth)))
+                        .with(jwt().jwt(makeJwtWithEmail("alice@example.com"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(2L))
@@ -153,11 +138,11 @@ class PasswordControllerTest {
                 .password("newsecret")
                 .build();
 
-        when(passwordService.updatePassword(eq(1L), eq(2L), ArgumentMatchers.any(PasswordWriteDto.class)))
+        when(passwordService.updatePassword(eq(1L), eq(2L), any(PasswordWriteDto.class)))
                 .thenReturn(responseDto);
 
         mockMvc.perform(put("/api/passwords/2")
-                        .with(authentication(auth))
+                        .with(jwt().jwt(makeJwtWithEmail("alice@example.com")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateDto)))
                 .andExpect(status().isOk())
@@ -167,7 +152,7 @@ class PasswordControllerTest {
                 .andExpect(jsonPath("$.credential").value("alice.new@gmail.com"))
                 .andExpect(jsonPath("$.password").value("newsecret"));
 
-        verify(passwordService).updatePassword(eq(1L), eq(2L), ArgumentMatchers.any(PasswordWriteDto.class));
+        verify(passwordService).updatePassword(eq(1L), eq(2L), any(PasswordWriteDto.class));
     }
 
     @Test
@@ -175,7 +160,7 @@ class PasswordControllerTest {
         doNothing().when(passwordService).deletePassword(1L, 2L);
 
         mockMvc.perform(delete("/api/passwords/2")
-                        .with(authentication(auth)))
+                        .with(jwt().jwt(makeJwtWithEmail("alice@example.com"))))
                 .andExpect(status().isNoContent());
 
         verify(passwordService).deletePassword(1L, 2L);

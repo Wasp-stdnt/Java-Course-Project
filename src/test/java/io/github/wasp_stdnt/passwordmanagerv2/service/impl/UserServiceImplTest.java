@@ -1,7 +1,5 @@
 package io.github.wasp_stdnt.passwordmanagerv2.service.impl;
 
-import io.github.wasp_stdnt.passwordmanagerv2.dto.AuthResponseDto;
-import io.github.wasp_stdnt.passwordmanagerv2.dto.LoginRequestDto;
 import io.github.wasp_stdnt.passwordmanagerv2.dto.UserRegistrationDto;
 import io.github.wasp_stdnt.passwordmanagerv2.dto.UserResponseDto;
 import io.github.wasp_stdnt.passwordmanagerv2.exception.ConflictException;
@@ -9,7 +7,6 @@ import io.github.wasp_stdnt.passwordmanagerv2.exception.NotFoundException;
 import io.github.wasp_stdnt.passwordmanagerv2.model.User;
 import io.github.wasp_stdnt.passwordmanagerv2.repository.UserRepository;
 import io.github.wasp_stdnt.passwordmanagerv2.service.encryption.PasswordHashService;
-import io.github.wasp_stdnt.passwordmanagerv2.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,11 +25,9 @@ class UserServiceImplTest {
 
     @Mock private UserRepository userRepository;
     @Mock private PasswordHashService passwordHashService;
-    @Mock private JwtService jwtService;
     @InjectMocks private UserServiceImpl userService;
 
     private UserRegistrationDto registrationDto;
-    private LoginRequestDto loginDto;
 
     @BeforeEach
     void setUp() {
@@ -41,7 +36,6 @@ class UserServiceImplTest {
                 .email("alice@example.com")
                 .password("password123")
                 .build();
-        loginDto = new LoginRequestDto("alice@example.com", "password123");
     }
 
     @Test
@@ -72,43 +66,6 @@ class UserServiceImplTest {
         assertThatThrownBy(() -> userService.register(registrationDto))
                 .isInstanceOf(ConflictException.class)
                 .hasMessage("Email already in use");
-    }
-
-    @Test
-    void login_withValidCredentials_shouldReturnAuthResponse() {
-        User user = new User();
-        user.setId(2L);
-        user.setEmail("alice@example.com");
-        user.setName("Alice");
-        user.setPasswordHash("hashed");
-        when(userRepository.findByEmail("alice@example.com")).thenReturn(Optional.of(user));
-        when(passwordHashService.matches("password123", "hashed")).thenReturn(true);
-        when(jwtService.generateToken(2L, "alice@example.com")).thenReturn("token123");
-
-        AuthResponseDto auth = userService.login(loginDto);
-
-        assertThat(auth.getToken()).isEqualTo("token123");
-        assertThat(auth.getUser().getId()).isEqualTo(2L);
-        assertThat(auth.getUser().getEmail()).isEqualTo("alice@example.com");
-    }
-
-    @Test
-    void login_withUnknownEmail_shouldThrowNotFound() {
-        when(userRepository.findByEmail("alice@example.com")).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> userService.login(loginDto))
-                .isInstanceOf(NotFoundException.class)
-                .hasMessage("User not found");
-    }
-
-    @Test
-    void login_withInvalidPassword_shouldThrowConflict() {
-        User user = new User();
-        user.setPasswordHash("hashed");
-        when(userRepository.findByEmail("alice@example.com")).thenReturn(Optional.of(user));
-        when(passwordHashService.matches("password123", "hashed")).thenReturn(false);
-        assertThatThrownBy(() -> userService.login(loginDto))
-                .isInstanceOf(ConflictException.class)
-                .hasMessage("Invalid credentials");
     }
 
     @Test

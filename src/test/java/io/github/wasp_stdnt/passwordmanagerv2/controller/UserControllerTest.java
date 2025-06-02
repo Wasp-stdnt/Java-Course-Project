@@ -1,8 +1,6 @@
 package io.github.wasp_stdnt.passwordmanagerv2.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.wasp_stdnt.passwordmanagerv2.dto.AuthResponseDto;
-import io.github.wasp_stdnt.passwordmanagerv2.dto.LoginRequestDto;
 import io.github.wasp_stdnt.passwordmanagerv2.dto.UserRegistrationDto;
 import io.github.wasp_stdnt.passwordmanagerv2.dto.UserResponseDto;
 import io.github.wasp_stdnt.passwordmanagerv2.exception.ConflictException;
@@ -99,50 +97,6 @@ class UserControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code", is("CONFLICT")))
                 .andExpect(jsonPath("$.message", is("Email already in use")));
-    }
-
-    @Test
-    @DisplayName("POST /api/users/login → valid credentials → 200 OK with AuthResponseDto")
-    void login_success() throws Exception {
-        LoginRequestDto loginDto = new LoginRequestDto("alice@example.com", "password123");
-
-        UserResponseDto userDto = UserResponseDto.builder()
-                .id(2L)
-                .name("Alice")
-                .email("alice@example.com")
-                .build();
-
-        AuthResponseDto authResponse = AuthResponseDto.builder()
-                .token("dummy-jwt-token")
-                .user(userDto)
-                .build();
-
-        when(userService.login(any(LoginRequestDto.class)))
-                .thenReturn(authResponse);
-
-        mockMvc.perform(post("/api/users/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token", is("dummy-jwt-token")))
-                .andExpect(jsonPath("$.user.id", is(2)))
-                .andExpect(jsonPath("$.user.email", is("alice@example.com")));
-    }
-
-    @Test
-    @DisplayName("POST /api/users/login → wrong credentials → 409 Conflict")
-    void login_invalidCredentials() throws Exception {
-        LoginRequestDto loginDto = new LoginRequestDto("alice@example.com", "wrongpass");
-
-        when(userService.login(any(LoginRequestDto.class)))
-                .thenThrow(new ConflictException("Invalid credentials"));
-
-        mockMvc.perform(post("/api/users/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginDto)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code", is("CONFLICT")))
-                .andExpect(jsonPath("$.message", is("Invalid credentials")));
     }
 
     @Test

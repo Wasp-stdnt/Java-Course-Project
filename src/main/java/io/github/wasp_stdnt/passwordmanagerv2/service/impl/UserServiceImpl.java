@@ -1,7 +1,5 @@
 package io.github.wasp_stdnt.passwordmanagerv2.service.impl;
 
-import io.github.wasp_stdnt.passwordmanagerv2.dto.AuthResponseDto;
-import io.github.wasp_stdnt.passwordmanagerv2.dto.LoginRequestDto;
 import io.github.wasp_stdnt.passwordmanagerv2.dto.UserRegistrationDto;
 import io.github.wasp_stdnt.passwordmanagerv2.dto.UserResponseDto;
 import io.github.wasp_stdnt.passwordmanagerv2.exception.ConflictException;
@@ -10,7 +8,6 @@ import io.github.wasp_stdnt.passwordmanagerv2.model.User;
 import io.github.wasp_stdnt.passwordmanagerv2.repository.UserRepository;
 import io.github.wasp_stdnt.passwordmanagerv2.service.UserService;
 import io.github.wasp_stdnt.passwordmanagerv2.service.encryption.PasswordHashService;
-import io.github.wasp_stdnt.passwordmanagerv2.security.JwtService;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,14 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordHashService passwordHashService;
-    private final JwtService jwtService;
 
     public UserServiceImpl(UserRepository userRepository,
-                           PasswordHashService passwordHashService,
-                           JwtService jwtService) {
+                           PasswordHashService passwordHashService) {
         this.userRepository = userRepository;
         this.passwordHashService = passwordHashService;
-        this.jwtService = jwtService;
     }
 
     @Override
@@ -44,25 +38,6 @@ public class UserServiceImpl implements UserService {
                 .id(saved.getId())
                 .name(saved.getName())
                 .email(saved.getEmail())
-                .build();
-    }
-
-    @Override
-    public AuthResponseDto login(LoginRequestDto loginRequestDto) {
-        User user = userRepository.findByEmail(loginRequestDto.getEmail())
-                .orElseThrow(() -> new NotFoundException("User not found"));
-        if (!passwordHashService.matches(loginRequestDto.getPassword(), user.getPasswordHash())) {
-            throw new ConflictException("Invalid credentials");
-        }
-        String token = jwtService.generateToken(user.getId(), user.getEmail());
-        UserResponseDto userDto = UserResponseDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .build();
-        return AuthResponseDto.builder()
-                .token(token)
-                .user(userDto)
                 .build();
     }
 

@@ -1,7 +1,5 @@
 package io.github.wasp_stdnt.passwordmanagerv2.controller;
 
-import io.github.wasp_stdnt.passwordmanagerv2.dto.AuthResponseDto;
-import io.github.wasp_stdnt.passwordmanagerv2.dto.LoginRequestDto;
 import io.github.wasp_stdnt.passwordmanagerv2.dto.UserRegistrationDto;
 import io.github.wasp_stdnt.passwordmanagerv2.dto.UserResponseDto;
 import io.github.wasp_stdnt.passwordmanagerv2.service.UserService;
@@ -24,12 +22,6 @@ public class UserController {
     public ResponseEntity<UserResponseDto> register(@Valid @RequestBody UserRegistrationDto registrationDto) {
         UserResponseDto userDto = userService.register(registrationDto);
         return ResponseEntity.ok(userDto);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginRequestDto loginDto) {
-        AuthResponseDto authResponse = userService.login(loginDto);
-        return ResponseEntity.ok(authResponse);
     }
 
     @GetMapping("/{id}")
