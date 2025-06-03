@@ -2,7 +2,6 @@ package io.github.wasp_stdnt.passwordmanagerv2.exception;
 
 import io.github.wasp_stdnt.passwordmanagerv2.dto.ErrorResponse;
 import io.github.wasp_stdnt.passwordmanagerv2.dto.ValidationErrorResponse;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

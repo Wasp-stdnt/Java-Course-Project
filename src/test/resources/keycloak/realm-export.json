@@ -1,0 +1,56 @@
+{
+  "realm": "password-manager-realm",
+  "enabled": true,
+  "id": "password-manager-realm",
+  "users": [
+    {
+      "username": "alice@example.com",
+      "email": "alice@example.com",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Password123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user"
+      ]
+    },
+    {
+      "username": "bob@example.com",
+      "email": "bob@example.com",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "PasswordBob!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user"
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "password-manager-api",
+      "secret": "Fmz3U37vVta7hk0Hhaei1aBHksICAFaW",
+      "directAccessGrantsEnabled": true,
+      "enabled": true,
+      "publicClient": false,
+      "redirectUris": [],
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "serviceAccountsEnabled": true,
+      "defaultClientScopes": ["web-origins", "roles", "profile", "email"]
+    }
+  ],
+  "roles": {
+    "realm": [
+      { "name": "user" }
+    ]
+  }
+}
